@@ -65,8 +65,8 @@ public class OpenCVTest : MonoBehaviour
 			_webcamTexture.Play();
 
 			// initialize video / image with given size
-			videoSourceImage = new Mat(imHeight, imWidth, MatType.CV_8UC3);
-            videoSourceImageData = new Vec3b[imHeight * imWidth];
+			videoSourceImage = new Mat(imHeight, imWidth, MatType.CV_8UC3);  //MatType.CV_8UC3
+			videoSourceImageData = new Vec3b[imHeight * imWidth];
 
 			destImage = new Mat(imHeight, imWidth, MatType.CV_8UC3); //MatType.CV_8UC1);
             //destImageData = new byte[imHeight * imWidth];
@@ -154,17 +154,17 @@ public class OpenCVTest : MonoBehaviour
             for (var j = 0; j < imWidth; j++) {
 				//byte vec = destImageData[j + i * imWidth];
 				Vec3b vec = destImageData[j + i * imWidth];
-                var color32 = new Color32 {
-                    /*r = vec,
+				var color32 = new Color32 {
+					/*r = vec,
                     g = vec,
                     b = vec,*/
 					r = vec.Item2,
-                    g = vec.Item1,
-                    b = vec.Item0,
+					g = vec.Item1,
+					b = vec.Item0,
                     a = 0
                 };
-                c[j + i * imWidth] = color32;
-            }
+				c[j + i * imWidth] = color32;
+			}
         });
 
         processedTexture.SetPixels32(c);
@@ -243,23 +243,31 @@ public class OpenCVTest : MonoBehaviour
 		//Example: FAST corner detection algorithm
 		//https://elbruno.com/2020/11/13/dotnet-detecting-corners-on-the-%F0%9F%8E%A6-camera-feed-with-fast-algorithm-opencv-and-net5/
 		var newImage = new Mat();
+		var outputImage = new Mat();
 
 		Cv2.CvtColor(_image, newImage, ColorConversionCodes.BGR2GRAY, 0);
 
 		KeyPoint[] keypoints = Cv2.FAST(newImage, Threshold, false);
+
+		Cv2.CornerHarris(newImage, destImage, 2, 3, 0.04);
+
+		/*Cv2.CvtColor(outputImage, outputImage, ColorConversionCodes.GRAY2BGR);*/
 
 		/*foreach (KeyPoint kp in keypoints){
 			_image.Circle((Point)kp.Pt, 3, Scalar.Red, 1, LineTypes.AntiAlias, 0);
 		}
 		Cv2.CopyTo(_image, destImage);*/
 
+		destImage.ConvertTo(destImage, MatType.CV_8UC3);
+
 		//Cv2.DrawKeypoints(_image, keypoints, destImage, Scalar.Red);
-		Cv2.DrawKeypoints(newImage, keypoints, destImage, Scalar.Red);
+		Cv2.DrawKeypoints(destImage, keypoints, destImage, Scalar.Red);
 
-		/*destImage = newImage;*/
+		/*destImage = outputImage;*/
 
+		/*destImage.SetArray<Vec3b>(destImageData);*/
 		//--------------------------------------------------------------------------------------------------
-		
+
 
 
 
@@ -282,7 +290,7 @@ public class OpenCVTest : MonoBehaviour
         Cv2.Canny(_image, destImage, 100, 100);
 		*/
 		//--------------------------------------------------------------------------------------------------
-    }
+	}
 
 	// Display the original video in a opencv window
     void UpdateWindow(Mat _image) {
