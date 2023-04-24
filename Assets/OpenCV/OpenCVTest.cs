@@ -44,7 +44,7 @@ public class OpenCVTest : MonoBehaviour
     private int textureCount = 0;
     private int displayCount = 0;
 
-	public int Threshold = 50;
+	public int Threshold = 40;
 
     // Use this for initialization
     void Start () {
@@ -209,7 +209,7 @@ public class OpenCVTest : MonoBehaviour
 		for( int i = 0; i < dst_norm.Rows ; i++ ){
 			for( int j = 0; j < dst_norm.Cols; j++ ){
 				if( (int) dst_norm.At<float>(i,j) > thresh ){
-					destImage.Circle(j, i, 5, Scalar.Red, 2, LineTypes.Link8, 0);
+					Cv2.Circle(j, i, 5, Scalar.Red, 2, LineTypes.Link8, 0);
 				}
 			}
 		}*/
@@ -233,7 +233,7 @@ public class OpenCVTest : MonoBehaviour
 
 
 		//--------------------------------------------------------------------------------------------------
-		//Cv2.Flip(_image, _image, FlipMode.X);
+		/*Cv2.Flip(_image, _image, FlipMode.X);*/
 		//Cv2.CopyTo(_image, destImage);
 		//--------------------------------------------------------------------------------------------------
 
@@ -246,10 +246,26 @@ public class OpenCVTest : MonoBehaviour
 		var outputImage = new Mat();
 
 		Cv2.CvtColor(_image, newImage, ColorConversionCodes.BGR2GRAY, 0);
+		outputImage = newImage;
 
 		KeyPoint[] keypoints = Cv2.FAST(newImage, Threshold, false);
 
+		/*Cv2.CornerEigenValsAndVecs(newImage, destImage, 2, 3);*/
 		Cv2.CornerHarris(newImage, destImage, 2, 3, 0.04);
+
+		Cv2.Normalize(destImage, destImage, 0, 255, NormTypes.MinMax, MatType.CV_32FC1);
+		Cv2.ConvertScaleAbs(destImage, destImage);
+
+		for (int i = 0; i < destImage.Rows; i++)
+		{
+			for (int j = 0; j < destImage.Cols; j++)
+			{
+				if((int) destImage.At<float>(i,j) > Threshold)
+				{
+					Cv2.Circle(outputImage, new Point(j, i), 5, Scalar.Red, 2);
+				}
+			}
+		}
 
 		/*Cv2.CvtColor(outputImage, outputImage, ColorConversionCodes.GRAY2BGR);*/
 
@@ -257,11 +273,14 @@ public class OpenCVTest : MonoBehaviour
 			_image.Circle((Point)kp.Pt, 3, Scalar.Red, 1, LineTypes.AntiAlias, 0);
 		}
 		Cv2.CopyTo(_image, destImage);*/
+		Cv2.CvtColor(outputImage, outputImage, ColorConversionCodes.GRAY2BGR);
 
-		destImage.ConvertTo(destImage, MatType.CV_8UC3);
+		outputImage.ConvertTo(outputImage, MatType.CV_8UC3);
 
 		//Cv2.DrawKeypoints(_image, keypoints, destImage, Scalar.Red);
-		Cv2.DrawKeypoints(destImage, keypoints, destImage, Scalar.Red);
+		//Cv2.DrawKeypoints(destImage, keypoints, destImage, Scalar.Red);
+
+		destImage = outputImage;
 
 		/*destImage = outputImage;*/
 
